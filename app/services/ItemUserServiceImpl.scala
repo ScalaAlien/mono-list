@@ -21,6 +21,18 @@ class ItemUserServiceImpl extends ItemUserService {
     ) == 1L
   }
 
+  private def isHavingById(userId: Long, itemId: Long)(implicit dbSession: DBSession): Boolean = {
+    val column = ItemUser.column
+    ItemUser.countBy(
+      sqls
+        .eq(column.itemId, itemId)
+        .and
+        .eq(column.userId, userId)
+        .and
+        .eq(column.`type`, WantHaveType.Have.toString)
+    ) == 1L
+  }
+
   override def want(userId: Long, itemId: Long): Boolean = DB.localTx { implicit session =>
     if (isWantingById(userId, itemId)) false
     else {
@@ -52,7 +64,7 @@ class ItemUserServiceImpl extends ItemUserService {
   }
 
   override def have(userId: Long, itemId: Long): Boolean = DB.localTx { implicit session =>
-    if (isWantingById(userId, itemId)) false
+    if (isHavingById(userId, itemId)) false
     else {
       val now = ZonedDateTime.now()
       val itemUser = ItemUser(
@@ -68,7 +80,7 @@ class ItemUserServiceImpl extends ItemUserService {
   }
 
   override def doNotHave(userId: Long, itemId: Long): Boolean = DB.localTx { implicit session =>
-    if (isWantingById(userId, itemId)) {
+    if (isHavingById(userId, itemId)) {
       val column = ItemUser.column
       ItemUser.deleteBy(
         sqls

@@ -26,6 +26,7 @@
             </ul>
         </div>
     </div>
-    @views.html.items.items(Some(currentUser), items)
+    @* 変更する *@
+    @views.html.items.items(Some(currentUser), items.map((_, None)))
 </div>
 }
