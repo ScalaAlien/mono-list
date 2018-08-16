@@ -1,4 +1,6 @@
-@()(implicit messagesProvider: MessagesProvider, flash: Flash, request: RequestHeader)
+@import b3.vertical.fieldConstructor
+
+@(currentUserOpt: Option[User])(implicit messagesProvider: MessagesProvider, flash: Flash, request: RequestHeader)
 
 <header>
     <nav class="navbar navbar-default navbar-static-top">
@@ -18,8 +20,44 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">@Messages("Register")</a></li>
-                    <li><a href="#">@Messages("LogIn")</a></li>
+                    @if(currentUserOpt.isDefined) {
+                    <li>
+                        <a href="@routes.ItemsController.index(None)">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            @Messages("AddItem")
+                        </a>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">
+                               <span class="gravatar">
+                                   <img src="@common.gravatarUrl(currentUserOpt.get.email)?s=20&amp;r=g&amp;d=identicon&amp;d=mm"
+                                        alt="" class="img-circle">
+                               </span>
+                            @currentUserOpt.get.name
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                @* 追加する *@
+                                <a href="@routes.UsersController.show(currentUserOpt.get.id.get)">@Messages("MyPage")</a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                @b3.formCSRF(routes.AuthController.logout(), 'name -> "logout", 'style -> "display: none") {
+                                @b3.submit() {
+                                @Messages("LogOut")
+                                }
+                                }
+                                <a href="#" onclick="document.logout.submit();">@Messages("LogOut")</a>
+                            </li>
+                        </ul>
+                    </li>
+                    } else {
+                    <li><a href="@routes.SignUpController.index()">@Messages("Register")</a></li>
+                    <li><a href="@routes.AuthController.index()">@Messages("LogIn")</a></li>
+                    }
                 </ul>
             </div>
         </div>

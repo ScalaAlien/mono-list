@@ -1,21 +1,32 @@
-@(title: String)(content: Html)(implicit messagesProvider: MessagesProvider, flash: Flash, request: RequestHeader)
+@(title: String, currentUserOpt: Option[User])(content: Html)(implicit messagesProvider: MessagesProvider, flash: Flash, request: RequestHeader)
+
+@* 以下を追加 *@
+@import helper._
+@javascriptRouter("jsRoutes")(
+routes.javascript.ItemUserController.want,
+routes.javascript.ItemUserController.doNotWant,
+routes.javascript.ItemUserController.have,
+routes.javascript.ItemUserController.doNotHave
+)
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>@title - MonoList</title>
-    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("favicon.ico")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.ico")">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
-</head>
-<body>
-@common.navbar()
-<div class="container">
-    @common.messages()
-    @content
-</div>
-@common.footer()
-</body>
+    <!-- main.jsを読み込む -->
+    <script type="text/javascript" language="javascript" src="@routes.Assets.versioned("javascripts/main.js")"></script>
+   </head>
+   <body>
+       @common.navbar(currentUserOpt)
+       <div class="container">
+           @common.messages()
+           @content
+       </div>
+       @common.footer()
+   </body>
 </html>

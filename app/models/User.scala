@@ -5,19 +5,49 @@ import java.time.ZonedDateTime
 import scalikejdbc._
 import jsr310._
 import skinny.orm._
+import skinny.orm.feature.CRUDFeatureWithId
+import skinny.orm.feature.associations.HasManyAssociation
 
 case class User(id: Option[Long] = None,
                 name: String,
                 email: String,
                 password: String,
                 createAt: ZonedDateTime = ZonedDateTime.now(),
-                updateAt: ZonedDateTime = ZonedDateTime.now())
+                updateAt: ZonedDateTime = ZonedDateTime.now(),
+                items: Seq[Item] = Seq.empty, // 追加
+                wantItems: Seq[Item] = Seq.empty, // 追加
+                haveItems: Seq[Item] = Seq.empty) // 追加
 
 object User extends SkinnyCRUDMapper[User] {
 
-  override def tableName = "users"
+  // 追加: allAssociations, allItemRef, wantItemsRefを追加する
+  lazy val allAssociations: CRUDFeatureWithId[Long, User] = joins(allItemRef, wantItemsRef, haveItemsRef)
 
-  override val columns = Seq("id", "name", "email", "password", "create_at", "update_at")
+  lazy val allItemRef: HasManyAssociation[User] = hasManyThrough[Item](
+    through = ItemUser,
+    many = Item,
+    merge = (user, items) => user.copy(items = items)
+  )
+
+  lazy val wantItemsRef: HasManyAssociation[User] = hasManyThrough[ItemUser, Item](
+    through = ItemUser -> ItemUser.defaultAlias,
+    throughOn = (user: Alias[User], itemUser: Alias[ItemUser]) => sqls.eq(user.id, itemUser.userId),
+    many = Item -> Item.createAlias("i_in_u_want"),
+    on = (itemUser: Alias[ItemUser], item: Alias[Item]) =>
+      sqls.eq(itemUser.itemId, item.id).and.eq(itemUser.`type`, WantHaveType.Want.toString),
+    merge = (user, wantItems) => user.copy(wantItems = wantItems)
+  )
+
+  lazy val haveItemsRef: HasManyAssociation[User] = hasManyThrough[ItemUser, Item](
+    through = ItemUser -> ItemUser.defaultAlias,
+    throughOn = (user: Alias[User], itemUser: Alias[ItemUser]) => sqls.eq(user.id, itemUser.userId),
+    many = Item -> Item.createAlias("i_in_u_have"),
+    on = (itemUser: Alias[ItemUser], item: Alias[Item]) =>
+      sqls.eq(itemUser.itemId, item.id).and.eq(itemUser.`type`, WantHaveType.Have.toString),
+    merge = (user, haveItems) => user.copy(haveItems = haveItems)
+  )
+
+  override def tableName = "users"
 
   override def defaultAlias: Alias[User] = createAlias("u")
 
@@ -29,8 +59,9 @@ object User extends SkinnyCRUDMapper[User] {
     'updateAt -> record.updateAt
   )
 
+  // 変更
   override def extract(rs: WrappedResultSet, n: ResultName[User]): User =
-    autoConstruct(rs, n)
+    autoConstruct(rs, n, "items", "haveItems", "wantItems") // items, wantItemsを除外する
 
   def create(user: User)(implicit session: DBSession = AutoSession): Long =
     createWithAttributes(toNamedValues(user): _*)
