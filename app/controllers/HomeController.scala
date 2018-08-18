@@ -1,7 +1,6 @@
 package controllers
 
 import javax.inject._
-
 import jp.t2v.lab.play2.auth.OptionalAuthElement
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc._

@@ -2,8 +2,8 @@ package models
 
 import java.time.ZonedDateTime
 
-import scalikejdbc._, jsr310._
-import skinny.orm.{ Alias, SkinnyCRUDMapper, SkinnyJoinTable }
+import scalikejdbc._
+import skinny.orm.{Alias, SkinnyCRUDMapper, SkinnyJoinTable}
 
 case class ItemUser(id: Option[Long],
                     itemId: Long,
@@ -22,9 +22,9 @@ object ItemUser extends SkinnyCRUDMapper[ItemUser] {
   override def defaultAlias: Alias[ItemUser] = createAlias("iu")
 
   private def toNamedValues(record: ItemUser): Seq[(Symbol, Any)] = Seq(
-    'itemId   -> record.itemId,
-    'userId   -> record.userId,
-    'type     -> record.`type`,
+    'itemId -> record.itemId,
+    'userId -> record.userId,
+    'type -> record.`type`,
     'createAt -> record.createAt,
     'updateAt -> record.updateAt
   )

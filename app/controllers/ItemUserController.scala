@@ -12,12 +12,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ItemUserController @Inject()(
-    val userService: UserService,
-    val itemService: ItemService,
-    val itemUserService: ItemUserService,
-    components: ControllerComponents
-)(implicit ec: ExecutionContext)
-    extends AbstractController(components)
+                                    val userService: UserService,
+                                    val itemService: ItemService,
+                                    val itemUserService: ItemUserService,
+                                    components: ControllerComponents
+                                  )(implicit ec: ExecutionContext)
+  extends AbstractController(components)
     with I18nSupport
     with AuthConfigSupport
     with AuthenticationElement {

@@ -3,9 +3,9 @@ package controllers
 import jp.t2v.lab.play2.auth.{AsyncIdContainer, AuthConfig, TransparentIdContainer}
 import play.api.mvc.Results._
 import play.api.mvc.{RequestHeader, Result}
+import services.UserService
 
 import scala.concurrent.{ExecutionContext, Future}
-import services.UserService
 
 trait AuthConfigSupport extends AuthConfig {
 

@@ -1,9 +1,9 @@
 package services
 
 import java.time.ZonedDateTime
-import javax.inject.Singleton
 
-import models.{ ItemUser, WantHaveType }
+import javax.inject.Singleton
+import models.{ItemUser, WantHaveType}
 import scalikejdbc._
 
 @Singleton

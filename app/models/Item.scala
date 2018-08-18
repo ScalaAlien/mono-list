@@ -3,7 +3,6 @@ package models
 import java.time.ZonedDateTime
 
 import scalikejdbc._
-import jsr310._
 import skinny.orm._
 import skinny.orm.feature.CRUDFeatureWithId
 import skinny.orm.feature.associations.HasManyAssociation
@@ -17,8 +16,8 @@ case class Item(id: Option[Long],
                 createAt: ZonedDateTime,
                 updateAt: ZonedDateTime,
                 users: Seq[User] = Seq.empty, // 追加
-                haveUsers: Seq[User] = Seq.empty, // 追加
-                wantUsers: Seq[User] = Seq.empty) // 追加
+                wantUsers: Seq[User] = Seq.empty, // 追加
+                haveUsers: Seq[User] = Seq.empty) // 追加
 
 object Item extends SkinnyCRUDMapper[Item] {
 
@@ -54,18 +53,18 @@ object Item extends SkinnyCRUDMapper[Item] {
   override def defaultAlias: Alias[Item] = createAlias("i")
 
   private def toNamedValues(record: Item): Seq[(Symbol, Any)] = Seq(
-    'code     -> record.code,
-    'name     -> record.name,
-    'url      -> record.url,
+    'code -> record.code,
+    'name -> record.name,
+    'url -> record.url,
     'imageUrl -> record.imageUrl,
-    'price    -> record.price,
+    'price -> record.price,
     'createAt -> record.createAt,
     'updateAt -> record.updateAt
   )
 
   // 変更
   override def extract(rs: WrappedResultSet, n: ResultName[Item]): Item =
-    autoConstruct(rs, n, "users", "haveUsers", "wantUsers") // users, wantUsersを除外する
+    autoConstruct(rs, n, "users", "wantUsers", "haveUsers")
 
 
   def create(item: Item)(implicit session: DBSession = AutoSession): Long =

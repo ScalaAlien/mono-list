@@ -3,7 +3,6 @@ package models
 import java.time.ZonedDateTime
 
 import scalikejdbc._
-import jsr310._
 import skinny.orm._
 import skinny.orm.feature.CRUDFeatureWithId
 import skinny.orm.feature.associations.HasManyAssociation
@@ -30,7 +29,7 @@ object User extends SkinnyCRUDMapper[User] {
   )
 
   lazy val wantItemsRef: HasManyAssociation[User] = hasManyThrough[ItemUser, Item](
-    through = ItemUser -> ItemUser.defaultAlias,
+    through = ItemUser -> ItemUser.createAlias("iu"),
     throughOn = (user: Alias[User], itemUser: Alias[ItemUser]) => sqls.eq(user.id, itemUser.userId),
     many = Item -> Item.createAlias("i_in_u_want"),
     on = (itemUser: Alias[ItemUser], item: Alias[Item]) =>
@@ -39,7 +38,7 @@ object User extends SkinnyCRUDMapper[User] {
   )
 
   lazy val haveItemsRef: HasManyAssociation[User] = hasManyThrough[ItemUser, Item](
-    through = ItemUser -> ItemUser.defaultAlias,
+    through = ItemUser -> ItemUser.createAlias("iu"),
     throughOn = (user: Alias[User], itemUser: Alias[ItemUser]) => sqls.eq(user.id, itemUser.userId),
     many = Item -> Item.createAlias("i_in_u_have"),
     on = (itemUser: Alias[ItemUser], item: Alias[Item]) =>
@@ -52,8 +51,8 @@ object User extends SkinnyCRUDMapper[User] {
   override def defaultAlias: Alias[User] = createAlias("u")
 
   private def toNamedValues(record: User): Seq[(Symbol, Any)] = Seq(
-    'name     -> record.name,
-    'email    -> record.email,
+    'name -> record.name,
+    'email -> record.email,
     'password -> record.password,
     'createAt -> record.createAt,
     'updateAt -> record.updateAt
@@ -61,7 +60,7 @@ object User extends SkinnyCRUDMapper[User] {
 
   // 変更
   override def extract(rs: WrappedResultSet, n: ResultName[User]): User =
-    autoConstruct(rs, n, "items", "haveItems", "wantItems") // items, wantItemsを除外する
+    autoConstruct(rs, n, "items", "wantItems", "haveItems") // items, wantItemsを除外する
 
   def create(user: User)(implicit session: DBSession = AutoSession): Long =
     createWithAttributes(toNamedValues(user): _*)

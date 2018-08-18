@@ -24,5 +24,4 @@ class UsersController @Inject()(val userService: UserService,
     } yield Ok(views.html.users.show(loggedIn, targetUser.get, items)))
       .getOrElse(InternalServerError(Messages("InternalError")))
   }
-
 }

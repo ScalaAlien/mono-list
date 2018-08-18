@@ -1,9 +1,8 @@
 package controllers
 
-import javax.inject.{Inject, Singleton}
-
 import com.github.t3hnar.bcrypt._
 import forms.Login
+import javax.inject.{Inject, Singleton}
 import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.data.Form
 import play.api.data.Forms._
@@ -16,9 +15,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AuthController @Inject()(
-    val userService: UserService,
-    components: ControllerComponents)(implicit ec: ExecutionContext)
-    extends AbstractController(components)
+                                val userService: UserService,
+                                components: ControllerComponents)(implicit ec: ExecutionContext)
+  extends AbstractController(components)
     with I18nSupport
     with AuthConfigSupport
     with LoginLogout {
@@ -29,7 +28,7 @@ class AuthController @Inject()(
       "password" -> nonEmptyText
     )(Login.apply)(Login.unapply)
       .verifying("AuthFailed",
-                 form => authenticate(form.email, form.password).isDefined)
+        form => authenticate(form.email, form.password).isDefined)
   }
 
   private val rememberMeForm: Form[Boolean] = Form {
